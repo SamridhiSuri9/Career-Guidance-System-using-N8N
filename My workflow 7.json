@@ -1,0 +1,161 @@
+{
+  "name": "My workflow 7",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "00d0293c-e4f0-472a-ac2e-dc227b78f6cf",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "sheetId": "your-sheet id",
+        "range": "={{\"Form Responses 1!A:E\"}}",
+        "options": {}
+      },
+      "name": "Read New Entries",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        192,
+        0
+      ],
+      "id": "8546f24f-aa62-4b88-a062-b494977edd7f",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "your id",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based on the following student interests:{{ $json.Interests }} , suggest three suitable career paths. Provide a brief explanation for each suggestion. Format the response as a JSON object with a \"suggestions\" array, each item containing \"career\" and \"reason\".Give the output in a text format for user to read. Show individual career options and reasons, remove extra formatting like \\n etc",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        400,
+        0
+      ],
+      "id": "bd690f73-34d8-4bcb-8b04-30fb94c5bdfd",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        272,
+        208
+      ],
+      "id": "54f1e0f6-3fca-4c36-8407-aed89a7d9283",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "3wFOpwAyIQsSpiJH",
+          "name": "OpenAi account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "The Career Options Avaliable as per your interests",
+        "message": "=The career options available are:  {{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "e37bc807-2a1b-495a-bb79-11969fba5090",
+      "name": "Create a draft",
+      "webhookId": "4e60f2bc-e959-456a-a7c7-fedbbe9ccef0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "82ym7FACIL7NCGz1",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Read New Entries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read New Entries": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "030a2286-c591-41e1-97d7-d034e5eba59e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "247c6d6612abe8a9eea42e38f506d63d732434a32eef0029ea0e62bf6241a15c"
+  },
+  "id": "4tMmxcweb4MCPANl",
+  "tags": []
+}

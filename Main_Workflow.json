@@ -1,0 +1,189 @@
+{
+  "name": "Main_Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "functionCode": "function validateEmail(email) {\n  // Simple email validation regex\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n}\n\nreturn items.map(item => {\n  const { Name, Email, Interests } = item.json;\n\n  if (!Name || Name.trim() === '') {\n    throw new Error('Name is required');\n  }\n  if (!Email || !validateEmail(Email)) {\n    throw new Error('Invalid or missing email');\n  }\n  if (!Interests || Interests.trim() === '') {\n    throw new Error('Interests are required');\n  }\n\n  return {\n    json: {\n      name: Name.trim(),\n      email: Email.trim().toLowerCase(),\n      interests: Interests.split(',').map(i => i.trim()).filter(i => i !== ''),\n      timestamp: new Date().toISOString()\n    }\n  };\n});"
+      },
+      "name": "Validate Form Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e3bcfd67-eda8-493d-a183-11945f00c1bd"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "append",
+        "sheetId": "your-sheet-id",
+        "range": "Form Responses 1!A:D",
+        "options": {}
+      },
+      "name": "Store to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "6fb09997-d361-4fdf-b6ce-18580c880e32",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "1T0P2vUrXFBJAIwh",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "Thank you for your submission!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Prepare Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "434774c0-5c2a-4583-a23d-3c4cd50d731e"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1v4uytc0Ow0AHyHu1b0ELthn1Gns4SYX0vefM-vsjqsI",
+          "mode": "list",
+          "cachedResultName": "Career Guidance",
+          "cachedResultUrl": "your-sheet link"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 269826058,
+          "mode": "list",
+          "cachedResultName": "Form Responses 1",
+          "cachedResultUrl": "your-sheet link"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ec65aaa0-be89-4edd-9a5d-6de53bc77e90",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "NtgBfsW5IivDPVak",
+          "name": "Google Sheets Trigger account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "4tMmxcweb4MCPANl",
+          "mode": "list",
+          "cachedResultName": "My workflow 7"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        0
+      ],
+      "id": "ed208187-6ba6-46d7-91eb-3488be6b207d",
+      "name": "Execute Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Validate Form Data": {
+      "main": [
+        [
+          {
+            "node": "Store to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store to Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Prepare Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Validate Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Response": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a2b01e5d-0ec1-4a6f-aaed-c81410e9259a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "247c6d6612abe8a9eea42e38f506d63d732434a32eef0029ea0e62bf6241a15c"
+  },
+  "id": "F9hoGucKoW3Zjyje",
+  "tags": []
+}
